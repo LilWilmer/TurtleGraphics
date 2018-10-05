@@ -18,7 +18,7 @@
 
 /*TYPEDEFS AND STRUCTS------------------------------------------------------*/
 /*VOID FUNCTION POINTER*/
-typedef void (*VOID)(void);
+typedef void (*VoidFunc)(void);
 
 /*Coordinate struct*/
 typedef struct{

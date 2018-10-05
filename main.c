@@ -39,9 +39,9 @@ int main( int argc, char **argv)
         printf("    where:\n");
         printf("    a is the file name\n");
     }
-    if(createPen(&pen) && createList(&commands))
+    else if(createPen(&pen) && createList(&commands))
     {
-        commands->freeValuePtr = &freeCommand;
+        commands->freeFunc = &freeCommand;
         if(readCommands(argv[1], commands) == 0)
         {
             executeGCommandList(pen, commands);

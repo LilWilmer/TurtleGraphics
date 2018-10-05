@@ -1,9 +1,9 @@
-/******************************************************************************
+/*****************************************************************************
 * AUTH: William Payne
 * FILE: linkedlist.c
 * LAST MOD: 24/9/18
 * PURPOSE: Linked list abstract data type.
-******************************************************************************/
+*****************************************************************************/
 #include "linked_list.h"
 
 /*****************************************************************************
@@ -27,7 +27,7 @@ int createList(LinkedList **list)
     (*list)->count = 0;
     (*list)->head = NULL;
     (*list)->tail = NULL;
-    (*list)->freeValuePtr = NULL;
+    (*list)->freeFunc = NULL;
 
     return 1;
 }
@@ -35,21 +35,22 @@ int createList(LinkedList **list)
 /*****************************************************************************
 * FUNCTION: insertFirst
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A LinkedList pointer.
-*  'value'  ~ The GCommand pointer to be inserted.
+* IMPORTS:
+*    list(LinkedList*)  ~ Pointer to the list.
+*    value(void*)       ~ Pointer to the data being inserted.
 *
-*  EXPORTS: 
-*  '0'  ~ An int representing the success of the function.
+* EXPORTS: 
+*   '0'  ~ An int representing the success of the function.
 *
-*  PURPOSE: 
-*  Place an GCommand struct in a new ListNode then insert it into the front of
-*  the imported list.
+* PURPOSE: 
+*   Place an GCommand struct in a new ListNode then insert it into the front
+*   of the imported list.
 *
-*  ERROR CODES: 
-*  0 ~ Success.
-*  NOTES: 
-*  --
+* ERROR CODES: 
+*   0 ~ Success.
+*
+* NOTES: 
+*   --
 *****************************************************************************/
 int insertFirst(LinkedList *list, void *value)
 {
@@ -75,23 +76,24 @@ int insertFirst(LinkedList *list, void *value)
 }
 
 /*****************************************************************************
-* FUNCTION: insertFirst
+* FUNCTION: insertLast
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A LinkedList pointer.
-*  'value'  ~ The GCommand pointer to be inserted.
+* IMPORTS:
+*    list(LinkedList*)  ~ Pointer to the list.
+*    value(void*)       ~ Pointer to the data being inserted.
 *
-*  EXPORTS: 
-*  '0'  ~ An int representing the success of the function.
+* EXPORTS: 
+*   '0'  ~ An int representing the success of the function.
 *
-*  PURPOSE: 
-*  Place an GCommand struct in a new ListNode then insert it into the front of
-*  the imported list.
+* PURPOSE: 
+*   Assign a void pointer to a new ListNode then inserts it at the end
+*   of the imported list.
 *
-*  ERROR CODES: 
-*  0 ~ Success.
-*  NOTES: 
-*  --
+* ERROR CODES: 
+*   0 ~ No errors.
+*
+* NOTES: 
+*   --
 *****************************************************************************/
 int insertLast(LinkedList *list, void *value)
 {
@@ -121,17 +123,17 @@ int insertLast(LinkedList *list, void *value)
 /*****************************************************************************
 * FUNCTION: removeFirst
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A LinkedList pointer.
+* IMPORTS:
+*   list(LinkedList*)   ~ A LinkedList pointer.
 *
-*  EXPORTS: 
-*  'value'  ~ A pointer to a GCommand struct.
+* EXPORTS: 
+*   value(void*)  ~ A pointer to the data stored at the removed node.
 *
-*  PURPOSE: 
-*  Removes the first value in the LinkedList 'list' then removes the node.
+* PURPOSE: 
+*   Returns the first value in the LinkedList 'list' then removes the node.
 *
-*  NOTES: 
-*  Returns NULL if list is empty.
+* NOTES: 
+*   Returns NULL if list is empty.
 *****************************************************************************/
 void *removeFirst(LinkedList *list)
 {
@@ -159,17 +161,17 @@ void *removeFirst(LinkedList *list)
 /*****************************************************************************
 * FUNCTION: removeLast
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A LinkedList pointer.
+* IMPORTS:
+*   list(LinkedList*)   ~ Pointer to the list.
 *
-*  EXPORTS: 
-*  'value'  ~ A pointer to a GCommand struct.
+* EXPORTS: 
+*   value(void*)    ~ A pointer to the data stored in the removed node.
 *
-*  PURPOSE: 
-*  Removes the last value in the LinkedList 'list' then removes the node.
+* PURPOSE: 
+*   Returns the last value in the LinkedList 'list' then removes the node.
 *
-*  NOTES: 
-*  Returns NULL if list is empty.
+* NOTES: 
+*   Returns NULL if list is empty.
 *****************************************************************************/
 void *removeLast(LinkedList *list)
 {
@@ -195,17 +197,18 @@ void *removeLast(LinkedList *list)
 /*****************************************************************************
 * FUNCTION: get
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'list'   ~ A pointer to the Linked List
-*  'index'  ~ An int representing the place in the list that a value exists
+* IMPORTS: 
+*   list(LinkedList*)   ~ Pointer to the list.
+*   index(int)          ~ Number representing the position in the list that 
+*                         the value should be retrieved from.
 *
-*  EXPORTS: 
-*  'value'  ~ An GCommand pointer from the LinkedList.
+* EXPORTS: 
+*   value(void*)    ~ Pointer to the data stored in the LinkedList.
 *
-*  PURPOSE: 
-*  Returns a pointer to the value located at the specified index in the list.
+* PURPOSE: 
+*   Returns a pointer to the value located at the specified index in the list.
 *
-*  NOTES: 
+* NOTES: 
 *  Returns NULL if index points exceeds the bounds of the list.
 *****************************************************************************/
 void *get(LinkedList *list, int index)
@@ -228,57 +231,23 @@ void *get(LinkedList *list, int index)
 }
 
 /*****************************************************************************
-* FUNCTION: display
-*-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A pointer to a Linked List
-*
-*  EXPORTS: none
-*  ''
-*
-*  PURPOSE: 
-*  Prints out the contents of the list.
-*
-*  NOTES: 
-*  --
-*****************************************************************************/
-/*void display(LinkedList *list)
-{
-    ListNode *temp = NULL;
-    if(list->count == 0)
-    {
-        printf("List is empty");
-    }
-    else
-    {
-        temp = list->head;
-        do
-        {
-            displayEntry(temp->value);
-            temp = temp->next;
-        }
-        while(temp != NULL);
-    }
-}*/
-
-/*****************************************************************************
 * FUNCTION: freeList
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'list'       ~ Pointer to LinkedList for freeing.
+* IMPORTS: 
+*   list(LinkedList*)   ~ Pointer to LinkedList for freeing.
 *
-*  EXPORTS: 
-*  'success'    ~ Int representing the success of the function.
+* EXPORTS: 
+*   success(int)    ~ Number representing the success of the function.
 *
-*  PURPOSE: 
-*  Wrapper for freeListRec.
+* PURPOSE: 
+*   Wrapper for freeListRec.
 *
-*  ERROR CODES: 
-*  0 ~ List freed
-*  1 ~ List not freed
+* ERROR CODES: 
+*   0 ~ List freed
+*   1 ~ List not freed
 *
-*  NOTES: 
-*  WRAPPER METHOD.
+* NOTES: 
+*   WRAPPER METHOD.
 *****************************************************************************/
 int freeList(LinkedList *list)
 {
@@ -298,19 +267,20 @@ int freeList(LinkedList *list)
 * FUNCTION: freeListRec
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   list(ListNode*)     ~* A pointer to a List node.
+*   list(ListNode*) ~ A pointer to a List node to be freed.
 *
 * EXPORTS: 
 *   '0' ~ An int representing the success of the free
 *
 * PURPOSE: 
-*  --
+*   Recursively go through list till the end is reached freeing each node
+*   as the recursion unwinds.
 *
 * ERROR CODES: 
 *   0 ~ No errors.
 *
-*  NOTES: 
-*  DOES NOT FREE THE *value* FIELD
+* NOTES: 
+*   DOES NOT FREE THE *value* FIELD
 *****************************************************************************/
 void freeListRec(ListNode *currNode)
 {
@@ -328,10 +298,10 @@ void freeListRec(ListNode *currNode)
 *   list(LinkedList*)   ~ Pointer to the LinkedList struct for freeing.
 *
 * EXPORTS: 
-*   success(int)    ~ Int representing the success of the function.
+*   success(int)    ~ Number representing the success of the function.
 *
 * PURPOSE: 
-*  Wrapper for completeFreeRec.
+*   Wrapper for completeFreeRec.
 *
 * ERROR CODES: 
 *   0 ~ List freed
@@ -346,7 +316,7 @@ int completeFreeList(LinkedList *list)
 
     if(list != NULL)
     {
-        completeFreeRec(list->head, list->freeValuePtr);
+        completeFreeRec(list->head, list->freeFunc);
         free(list);
     }
     success = 0;
@@ -359,12 +329,13 @@ int completeFreeList(LinkedList *list)
 *-----------------------------------------------------------------------------
 * IMPORTS: 
 *   currNode(ListNode*)     ~ A pointer to a List node
-*   freeValue(FREEVALUE)    ~ Function pointer for free the data at 
+*   FreeFunc(FreeFunc)    ~ Function pointer for free the data at 
 *                             void* value. 
 * EXPORTS: 
 *
 * PURPOSE: 
-*   --
+*   Recursively go through list till the end is reached, freeing each value
+*   and node as the recursion unwinds.
 *
 * ERROR CODES: 
 *   --
@@ -372,12 +343,12 @@ int completeFreeList(LinkedList *list)
 * NOTES: 
 *   Tested with 300,000 levels of recursion with no overflow.
 *****************************************************************************/
-void completeFreeRec(ListNode *currNode, FREEVALUE freeValue)
+void completeFreeRec(ListNode *currNode, FreeFunc freeFunc)
 {
     if(currNode != NULL)
     {
-        completeFreeRec(currNode->next, freeValue);
-        (*freeValue)(currNode->value);
+        completeFreeRec(currNode->next, freeFunc);
+        (*freeFunc)(currNode->value);
         free(currNode);
     }
 }

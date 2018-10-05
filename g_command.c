@@ -1,9 +1,9 @@
-/******************************************************************************
+/*****************************************************************************
 * AUTH: William Payne
 * FILE: g_command.c
 * LAST MOD: 05/10/18
 * PURPOSE: Functions for GCommand structs
-******************************************************************************/
+*****************************************************************************/
 #include "g_command.h"
 #include "file_io.h"
 
@@ -39,8 +39,8 @@ static int allocateChar(char *data, GCommand *gCommand);
 int createGCommand(char *type, char *data, GCommand **newGCommand)
 {
     int success = 0;
-    COMMANDFUNC commandFuncPtr = NULL;
-    ALLOCATER allocaterPtr = NULL;
+    CommandFunc commandFuncPtr = NULL;
+    AllocateFunc allocaterPtr = NULL;
 
     /*Formatting type string to match predefined types constants*/
     capitalize(type);
@@ -89,7 +89,7 @@ int createGCommand(char *type, char *data, GCommand **newGCommand)
         *newGCommand = (GCommand*)malloc(sizeof(GCommand));
 
         /*Assigning the command function*/
-        (*newGCommand)->executer = (VOID)commandFuncPtr;
+        (*newGCommand)->executer = (VoidFunc)commandFuncPtr;
 
         /*Attempt to allocate and assign data to GCommand data*/
         if((*allocaterPtr)(data,*newGCommand) == 1)
@@ -210,8 +210,8 @@ int draw(Pen *pen, GCommand *command)
     currPos = pen->position;
     distance = *(double*)(command->data);
 
-    
-    calculatePosition(&newPos, &currPos, distance, pen->angle);
+    /*Minus one off the distance to avoid plotting a pattern at the last pos*/
+    calculatePosition(&newPos, &currPos, distance-1, pen->angle);
     
     x1 = rounds(currPos.pos[0]);
     y1 = rounds(currPos.pos[1]);
@@ -219,8 +219,8 @@ int draw(Pen *pen, GCommand *command)
     y2 = rounds(newPos.pos[1]);
     line(x1, y1, x2, y2, &plotter, (void*)&(pen->pattern));
 
-    /*adjusting position after write. 
-     (Could be fixed by changing for loop at line:59 in line() instead)*/
+    /*adjusting position after plot. 
+     (Could be fixed by changing for loop <= to < in effects.c line:59*/
     pen->position = newPos;
     currPos = pen->position;
     calculatePosition(&newPos, &currPos, 1, pen->angle);
@@ -249,7 +249,7 @@ int draw(Pen *pen, GCommand *command)
 *   '0' ~ success.
 *
 * PURPOSE: 
-*   Sets the pen FG field to the command data
+*   Sets the pen FG field to the command data and calls setFgColour()
 *
 * NOTES: 
 *   This function has no effect in TurtleGraphicSimple. 
@@ -276,7 +276,7 @@ int colourFG(Pen *pen, GCommand *command)
 *   '0' ~ success.
 *
 * PURPOSE: 
-*   Sets the pen FG field to the command data
+*   Sets the pen FG field to the command data and calls setBgColour()
 *
 * NOTES: 
 *   This function has no effect in TurtleGraphicSimple. 
@@ -334,7 +334,7 @@ void plotter(void *plotData)
 }
 
 /*****************************************************************************
-* FUNCTION: allocateDouble
+* STATIC FUNCTION: allocateDouble
 *-----------------------------------------------------------------------------
 * IMPORTS: 
 * 	data(char*)         ~ A String containing data for the GCommand Struct.
@@ -367,7 +367,7 @@ static int allocateDouble(char *data, GCommand *gCommand)
 }
 
 /*****************************************************************************
-* FUNCTION: allocateInt
+* STATIC FUNCTION: allocateInt
 *-----------------------------------------------------------------------------
 * IMPORTS: 
 * 	data(char*)         ~ A String containing data for the GCommand Struct
@@ -401,7 +401,7 @@ static int allocateInt(char *data, GCommand *gCommand)
 }
 
 /*****************************************************************************
-* FUNCTION: allocateChar
+* STATIC FUNCTION: allocateChar
 *-----------------------------------------------------------------------------
 * IMPORTS: 
 * 	data(char*)         ~ A String containing data for the GCommand Struct
@@ -447,7 +447,7 @@ static int allocateChar(char *data, GCommand *gCommand)
 *   Frees heap memory from 'data' then frees the gCommand from the heap
 *
 * NOTES:
-*   The function takes in a void pointer so that is matches FREEVALUE data
+*   The function takes in a void pointer so that is matches FreeFunc data
 *   type used by the generic LinkedList struct.
 *****************************************************************************/
 void freeCommand(void *gCommand)

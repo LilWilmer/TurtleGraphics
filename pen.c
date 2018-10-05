@@ -10,7 +10,7 @@
 * FUNCTION: createPen
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   pen(Pen**)  ~
+*   pen(Pen**)  ~ Pointer to the new pen pointer
 *
 * EXPORTS: 
 *   '1' ~ Place holder for error code ('1' meaning success).

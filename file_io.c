@@ -39,8 +39,8 @@ int readCommands(char* fileName, LinkedList *commands)
     char BADREAD[60];
     char BADFORMAT[60];
     char BADCLOSE[60];
-    char preservedLine[ENTRY_LENGTH];
-    char line[ENTRY_LENGTH];
+    char preservedLine[COMMAND_LENGTH];
+    char line[COMMAND_LENGTH];
     char delim[] = " ";
     char *type = NULL, *data = NULL;
 
@@ -73,7 +73,7 @@ int readCommands(char* fileName, LinkedList *commands)
     /*---------------------------------------*/
     else
     {
-        while(error == FALSE && !ferror(f) && fgets(line,ENTRY_LENGTH,f) != NULL)
+        while(error == FALSE && !ferror(f) && fgets(line,COMMAND_LENGTH,f) != NULL)
         {
             /*Keeping track of the line number for an error report*/
             ii++;
@@ -173,7 +173,7 @@ int formatLog(char *line, char* type, Coord *startPos, Coord *endPos)
 *   '0'   ~Int representing an error code.
 *
 * PURPOSE: 
-*   Compile an array of logs then print them to graphics.log
+*   Compile an array of logs then prints them to graphics.log
 *
 * ERROR CODES: 
 *  --

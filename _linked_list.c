@@ -9,16 +9,17 @@
 /*****************************************************************************
 * FUNCTION: createList
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list' ~ A NULL LinkedList pointer
+* IMPORTS:
+*   list(LinkedList**) ~ Pointer to a NULL LinkedList pointer for alloc'ing
 *
-*  EXPORTS: none 
+* EXPORTS: 
+*   '1'     ~ Represents success, pure perfect success.
 *
-*  PURPOSE: 
-*  Creates, allocates and assigns an empty LinkedList to 'list'.
+* PURPOSE: 
+*   Creates, allocates and assigns an empty LinkedList to 'list'.
 *
-*  NOTES:
-*  The returned LinkedList must be freed before the program ends.
+* NOTES:
+*   The returned LinkedList must be freed before the program ends.
 *****************************************************************************/
 int createList(LinkedList **list)
 {
@@ -33,23 +34,23 @@ int createList(LinkedList **list)
 /*****************************************************************************
 * FUNCTION: insertFirst
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list'   ~ A LinkedList pointer.
-*  'value'  ~ The GCommand pointer to be inserted.
+* IMPORTS:
+*   list(LinkedList*)   ~ A LinkedList pointer.
+*   value(void*)  ~ The GCommand pointer to be inserted.
 *
-*  EXPORTS: 
+* EXPORTS: 
 *  '0'  ~ An int representing the success of the function.
 *
-*  PURPOSE: 
+* PURPOSE: 
 *  Place an GCommand struct in a new ListNode then insert it into the front of
 *  the imported list.
 *
-*  ERROR CODES: 
+* ERROR CODES: 
 *  0 ~ Success.
-*  NOTES: 
+* NOTES: 
 *  --
 *****************************************************************************/
-int insertFirst(LinkedList *list, GCommand *value)
+int insertFirst(LinkedList *list, void *value)
 {
     ListNode *newNode = (ListNode*)malloc(sizeof(ListNode));
     newNode->value = value;

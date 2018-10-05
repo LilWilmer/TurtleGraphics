@@ -1,1 +1,82 @@
+1. FUNCTIONS: 35 paragraphs
 
+draw.c: 
+    -runGCommand
+        
+
+file_io.c:
+    -readCommands
+    -formatLog
+    -tlog
+    -emptyBuffer
+    -appendStrings
+
+g_command.c:
+    -createGCommand
+    -rotate
+    -move
+    -draw
+    -colourFg
+    -colourBg
+    -changePattern
+    -plotter
+    -allocateDouble
+    -allocateInt
+    -allocateChar
+    -freeCommand
+
+linked_list.c:
+    -createList
+    -insertFirst
+    -insertLast
+    -removeFirst
+    -removeLast
+    -get
+    -freeList
+    -freeListRec
+    -completeFreeList
+    -completeFreeRec
+
+main.c:
+    -main
+
+pen.c:
+    -createPen
+    -freePen
+
+utils.c:
+    -capitalize
+    -round
+    -convertToRadians
+    -calculatePosition
+
+2. COORDINATES:
+    How did you convert the input file to a coordinate system:
+        Implementation:
+        Alternate approach:
+
+3. SAMPLE INPUT
+
+    Command-line to execute program:
+
+        -TurtleGraphics
+            -Normal
+            -Valgrind
+            
+        -TurtleGraphicsSimple
+            -Normal
+            -Valgrind
+            
+        -TurtleGraphicsDebug
+            -Normal
+            -Valgrind
+
+    User input provided: ??????
+
+    The input file:
+        -charizard
+        -all my test files
+
+    The output:
+        -Terminal
+        -graphics.log

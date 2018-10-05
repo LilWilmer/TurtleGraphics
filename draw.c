@@ -19,7 +19,8 @@
 *   void
 *
 * PURPOSE:
-*   Runs through each GCommand struct
+*   Runs through each GCommand struct passing itself along with the 'pen' to
+*   the function pointer it stores.
 *  
 * ERROR CODES:(Consider returning an int and come up with valid error codes)
 *  --
@@ -40,7 +41,7 @@ void executeGCommandList(Pen *pen, LinkedList *commands)
         command = removeFirst(commands);
 
         /*Running command*/
-        (*((COMMANDFUNC)(command->executer)))(pen, command);
+        (*((CommandFunc)(command->executer)))(pen, command);
 
         /*Freeing command*/
         freeCommand(command);

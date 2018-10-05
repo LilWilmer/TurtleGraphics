@@ -1,16 +1,26 @@
 /********************************************************************
-* Author: William Payne
-* File Name: Utils.c
-* Date Last Modified: 23\9\2018
+* AUTH: William Payne
+* FILE: Utils.c
+* LAST MODE: 05/10/2018
 * Purpose: General Utilities
 ********************************************************************/
 #include "utils.h"
-/**********************************************************
-* Function: capitalize
-*  Imports: array(int*), length(int)
-*  Exports: none
-*  Purpose: Capitalize all letters in a string
-**********************************************************/
+
+/*****************************************************************************
+* FUNCTION: capitalize
+*-----------------------------------------------------------------------------
+* IMPORTS: 
+*   text(int*)  ~ String to be capitalized.
+*
+* EXPORTS: 
+*   none
+*
+* PURPOSE: 
+*   Captialize all alphabetic characters in the string 'text';
+*
+* NOTES: 
+*   --
+*****************************************************************************/
 void capitalize( char *text)
 {
     int ii;
@@ -34,17 +44,17 @@ void capitalize( char *text)
 /*****************************************************************************
 * FUNCTION: round
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'num'    ~ A double value for rounding.
+* IMPORTS: 
+*   num(dobule)     ~ The value to be rounded.
 *
-*  EXPORTS: 
-*  'rounded'    ~ The rounded double value returned as an int.
+* EXPORTS: 
+*   rounded(int)    ~ The rounded double value returned as an int.
 *
-*  PURPOSE: 
-*  Rounds a double value using ceil and floor and returns the value.
+* PURPOSE: 
+*   Rounds a double value using ceil and floor and returns the value.
 *
-*  NOTES:
-*  Round down if < 0.5
+* NOTES:
+*   Round down if < 0.5
 *****************************************************************************/
 int rounds(double num)
 {
@@ -64,14 +74,14 @@ int rounds(double num)
 /*****************************************************************************
 * FUNCTION: convertToRadians
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'angle'  ~Double pointer containing the value of angle in degrees
+* IMPORTS: 
+*   angle(double*)  ~ Pointer to an angle in degrees.
 *
-*  EXPORTS: 
-*  'none'
+* EXPORTS: 
+*   none
 *
-*  PURPOSE: 
-*  Converts the degree value at angle to radians.
+* PURPOSE: 
+*   Converts the degree value at angle to radians.
 *****************************************************************************/
 void convertToRadians( double *angle)
 {
@@ -82,22 +92,22 @@ void convertToRadians( double *angle)
 * FUNCTION: calculatePosition
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-* 'newPos'      ~Coord of the new position of the cursor.
-* 'currPos'     ~Coord of the current position of the cursor.
-* 'distance'    ~double containing the distance to move the cursor.
-* 'angle'       ~double containing the angle to move the cursor on.
+*   newPos(Coord)      ~ New position of the cursor.
+*   currPos(Coord)     ~ Current position of the cursor.
+*   distance(double)   ~ Distance to move the cursor.
+*   angle(double)      ~ Angle to move the cursor on.
 *
 * EXPORTS: 
-* none
+*   none
 *
 * PURPOSE: 
-* Calculates a coordinate given a starting positon, an angle and a distance.
+*   Calculates a coordinate given a starting positon, an angle and a distance.
 *
 * ERROR CODES: 
-* --
+*   --
 *
 * NOTES: 
-* --
+*   --
 *****************************************************************************/
 void calculatePosition( Coord *newPos, Coord *currPos 
                       , double distance, double angle)
