@@ -9,16 +9,17 @@
 /*****************************************************************************
 * FUNCTION: createList
 *-----------------------------------------------------------------------------
-*  IMPORTS:
-*  'list' ~ A NULL LinkedList pointer
+* IMPORTS:
+*   list(LinkedList**) ~ Pointer to the new List pointer
 *
-*  EXPORTS: none 
+* EXPORTS:
+*   '1' ~ Temp error code(1 meaning success)
 *
-*  PURPOSE: 
-*  Creates, allocates and assigns an empty LinkedList to 'list'.
+* PURPOSE: 
+*   Creates, allocates and assigns an empty LinkedList to 'list'.
 *
-*  NOTES:
-*  The returned LinkedList must be freed before the program ends.
+* NOTES:
+*   The returned LinkedList must be freed before the program ends.
 *****************************************************************************/
 int createList(LinkedList **list)
 {
@@ -26,6 +27,7 @@ int createList(LinkedList **list)
     (*list)->count = 0;
     (*list)->head = NULL;
     (*list)->tail = NULL;
+    (*list)->freeValuePtr = NULL;
 
     return 1;
 }
@@ -49,7 +51,7 @@ int createList(LinkedList **list)
 *  NOTES: 
 *  --
 *****************************************************************************/
-int insertFirst(LinkedList *list, GCommand *value)
+int insertFirst(LinkedList *list, void *value)
 {
     ListNode *newNode = (ListNode*)malloc(sizeof(ListNode));
     newNode->value = value;
@@ -91,7 +93,7 @@ int insertFirst(LinkedList *list, GCommand *value)
 *  NOTES: 
 *  --
 *****************************************************************************/
-int insertLast(LinkedList *list, GCommand *value)
+int insertLast(LinkedList *list, void *value)
 {
     ListNode *newNode = (ListNode*)malloc(sizeof(ListNode));
 
@@ -131,9 +133,9 @@ int insertLast(LinkedList *list, GCommand *value)
 *  NOTES: 
 *  Returns NULL if list is empty.
 *****************************************************************************/
-GCommand *removeFirst(LinkedList *list)
+void *removeFirst(LinkedList *list)
 {
-    GCommand *value = NULL;
+    void *value = NULL;
     ListNode *temp = NULL;
 
     if(list->count > 0)
@@ -169,9 +171,9 @@ GCommand *removeFirst(LinkedList *list)
 *  NOTES: 
 *  Returns NULL if list is empty.
 *****************************************************************************/
-GCommand *removeLast(LinkedList *list)
+void *removeLast(LinkedList *list)
 {
-    GCommand *value = NULL;
+    void *value = NULL;
     ListNode *temp;
 
     if(list->count > 0)
@@ -191,7 +193,7 @@ GCommand *removeLast(LinkedList *list)
 }
 
 /*****************************************************************************
-* FUNCTION: 
+* FUNCTION: get
 *-----------------------------------------------------------------------------
 *  IMPORTS: 
 *  'list'   ~ A pointer to the Linked List
@@ -206,11 +208,11 @@ GCommand *removeLast(LinkedList *list)
 *  NOTES: 
 *  Returns NULL if index points exceeds the bounds of the list.
 *****************************************************************************/
-GCommand *get(LinkedList *list, int index)
+void *get(LinkedList *list, int index)
 {
     int ii;
     ListNode *temp;
-    GCommand *value = NULL;
+    void *value = NULL;
 
     if(list->count > index && index >= 0)
     {
@@ -282,8 +284,11 @@ int freeList(LinkedList *list)
 {
     int success = 1;
 
-    freeListRec(list->head);
-    free(list);
+    if(list != NULL)
+    {
+        freeListRec(list->head);
+        free(list);
+    }
     success = 0;
 
     return success;
@@ -292,20 +297,20 @@ int freeList(LinkedList *list)
 /*****************************************************************************
 * FUNCTION: freeListRec
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'list'   ~ A pointer to a LinkedList
+* IMPORTS: 
+*   list(ListNode*)     ~* A pointer to a List node.
 *
-*  EXPORTS: 
-*  '0'      ~ An int representing the success of the free
+* EXPORTS: 
+*   '0' ~ An int representing the success of the free
 *
-*  PURPOSE: 
+* PURPOSE: 
 *  --
 *
-*  ERROR CODES: 
-*  --
+* ERROR CODES: 
+*   0 ~ No errors.
 *
 *  NOTES: 
-*  DOES NOT FREE THE THE ENTRIES
+*  DOES NOT FREE THE *value* FIELD
 *****************************************************************************/
 void freeListRec(ListNode *currNode)
 {
@@ -315,32 +320,33 @@ void freeListRec(ListNode *currNode)
     }
     free(currNode);
 }
+
 /*****************************************************************************
-* FUNCTION: licolnList
+* FUNCTION: completeFreeList
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'list'       ~ Pointer to LinkedList for freeing.
+* IMPORTS: 
+*   list(LinkedList*)   ~ Pointer to the LinkedList struct for freeing.
 *
-*  EXPORTS: 
-*  'success'    ~ Int representing the success of the function.
+* EXPORTS: 
+*   success(int)    ~ Int representing the success of the function.
 *
-*  PURPOSE: 
-*  Wrapper for freeListRec.
+* PURPOSE: 
+*  Wrapper for completeFreeRec.
 *
-*  ERROR CODES: 
-*  0 ~ List freed
-*  1 ~ List not freed
+* ERROR CODES: 
+*   0 ~ List freed
+*   1 ~ List not freed
 *
-*  NOTES: 
-*  WRAPPER METHOD.
+* NOTES: 
+*   WRAPPER METHOD.
 *****************************************************************************/
-int lincolnList(LinkedList *list)
+int completeFreeList(LinkedList *list)
 {
     int success = 1;
 
     if(list != NULL)
     {
-        lincolnListRec(list->head);
+        completeFreeRec(list->head, list->freeValuePtr);
         free(list);
     }
     success = 0;
@@ -349,29 +355,29 @@ int lincolnList(LinkedList *list)
 }
 
 /*****************************************************************************
-* FUNCTION: lincolnListRec
+* FUNCTION: completeFreeRec
 *-----------------------------------------------------------------------------
-*  IMPORTS: 
-*  'list'   ~ A pointer to a LinkedList
+* IMPORTS: 
+*   currNode(ListNode*)     ~ A pointer to a List node
+*   freeValue(FREEVALUE)    ~ Function pointer for free the data at 
+*                             void* value. 
+* EXPORTS: 
 *
-*  EXPORTS: 
-*  '0'      ~ An int representing the success of the free
+* PURPOSE: 
+*   --
 *
-*  PURPOSE: 
-*  --
+* ERROR CODES: 
+*   --
 *
-*  ERROR CODES: 
-*  --
-*
-*  NOTES: 
-*  FREES EVERYTHING
+* NOTES: 
+*   Tested with 300,000 levels of recursion with no overflow.
 *****************************************************************************/
-void lincolnListRec(ListNode *currNode)
+void completeFreeRec(ListNode *currNode, FREEVALUE freeValue)
 {
     if(currNode != NULL)
     {
-        lincolnListRec(currNode->next);
-        freeCommand(currNode->value);
+        completeFreeRec(currNode->next, freeValue);
+        (*freeValue)(currNode->value);
         free(currNode);
     }
 }

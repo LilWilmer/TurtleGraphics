@@ -60,5 +60,11 @@ g_command_D.o : $(G_COMMAND_PREREQ)
 effects.o : effects.c effects.h
 	$(CC) -c effects.c $(CF)
 
+valLeak :
+	valgrind --leak-check=full --show-reachable=yes --track-origins=yes ./$(EXEC) A
+
+valError :
+	valgrind -v ./$(EXEC) testdata
+
 clean :
 	rm -f $(EXEC) $(OBJ) g_command.o

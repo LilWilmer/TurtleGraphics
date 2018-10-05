@@ -1,7 +1,7 @@
 /******************************************************************************
 * AUTH: William Payne
 * FILE: g_command.c
-* LAST MOD: 04/10/18
+* LAST MOD: 05/10/18
 * PURPOSE: Functions for GCommand structs
 ******************************************************************************/
 #include "g_command.h"
@@ -16,12 +16,12 @@ static int allocateChar(char *data, GCommand *gCommand);
 * FUNCTION: createGCommand
 *-----------------------------------------------------------------------------
 * IMPORTS:
-*   'type'          ~ A String containing the type of graphic command.
-*   'data'          ~ A String containing the data for the graphic command.
-*   'newGCommand'   ~ A GCommand struct to be allocated memory and data.
+*   type(char*)             ~ Contains the type of graphic command.
+*   data(char*)             ~ Contains the data for the graphic command.
+*   newGCommand(GCommand**) ~ New GCommand to be allocated memory and data.
 *
 * EXPORTS: 
-*   'success'       ~ An int returning the success of the function (errorcode)
+*   success(int)    ~ Number indicating success of the function (errorcode)
 *
 * PURPOSE: 
 *   Creates a GCommand struct and allocates the correct data depending on the
@@ -42,7 +42,7 @@ int createGCommand(char *type, char *data, GCommand **newGCommand)
     COMMANDFUNC commandFuncPtr = NULL;
     ALLOCATER allocaterPtr = NULL;
 
-    /*Formatting type string*/
+    /*Formatting type string to match predefined types constants*/
     capitalize(type);
 
     /*Find and validate GCommand type*/
@@ -107,8 +107,8 @@ int createGCommand(char *type, char *data, GCommand **newGCommand)
 * FUNCTION: rotate
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line().
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
 *   '0' ~ No errors.
@@ -122,11 +122,11 @@ int createGCommand(char *type, char *data, GCommand **newGCommand)
 *****************************************************************************/
 int rotate( Pen *pen, GCommand *command)
 {
-    /*Converting angle to clockwise -consider doing this at the fileIO stage*/
+    /*Converting angle to clockwise*/
     pen->angle += -1*(*(double*)(command->data));
 
     /*Finding the principal angle*/
-    while(pen->angle < 0)
+    /*while(pen->angle < 0)
     {
         pen->angle += 360;
     }
@@ -134,17 +134,17 @@ int rotate( Pen *pen, GCommand *command)
     while(pen->angle >= 360)
     {
         pen->angle -= 360;
-    }
+    }*/
 
     return 0;
 }
 
 /*****************************************************************************
-* FUNCTION: draw
+* FUNCTION: move
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line() function.
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
 *   '0' ~ No errors.
@@ -154,47 +154,47 @@ int rotate( Pen *pen, GCommand *command)
 *   calculatePosition() to pen->positon.
 *
 * ERROR CODES: 
-*   LOG ERROR?
+*   '0' ~ No errors.
 *
 * NOTES: 
 *   
 *****************************************************************************/
 int move(Pen *pen, GCommand *command)
 {
-    double *currPos = NULL;
-    double newPos[2] = { 0.0f, 0.0f};
+    Coord currPos = NEW_COORD;
+    Coord newPos = NEW_COORD;
     double distance = 0.0f;
     char logEntry[LOG_ENTRY_LENGTH];
 
     currPos = pen->position;
     distance = *(double*)(command->data);
 
-    calculatePosition(newPos, currPos, distance, pen->angle);
+    calculatePosition(&newPos, &currPos, distance, pen->angle);
 
-    formatLog(logEntry, MOVE, currPos, newPos);
+    formatLog(logEntry, MOVE, &currPos, &newPos);
     tlog(logEntry);
 
-    pen->position[0] = newPos[0];
-    pen->position[1] = newPos[1];
+    pen->position = newPos;
 
     return 0;
 }
 
 /*****************************************************************************
-* FUNCTION: 
+* FUNCTION: draw
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line() function.
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
-*   ''
+*   '0' ~ No errors.
 *
-* PURPOSE: 
-*   --
+* PURPOSE:
+*   Calculates the start and end position for line() to draw the pattern stored
+*   in 'pen' onto the terminal. 
 *
 * ERROR CODES: 
-*   --
+*   0 ~ No errors.
 *
 * NOTES: 
 *   --
@@ -202,8 +202,8 @@ int move(Pen *pen, GCommand *command)
 int draw(Pen *pen, GCommand *command)
 {
     int x1, x2, y1, y2;
-    double *currPos = NULL;
-    double newPos[2] = { 0.0f, 0.0f};
+    Coord currPos = NEW_COORD;
+    Coord newPos = NEW_COORD;
     double distance = 0.0f;
     char logEntry[LOG_ENTRY_LENGTH];
 
@@ -211,29 +211,25 @@ int draw(Pen *pen, GCommand *command)
     distance = *(double*)(command->data);
 
     
-    calculatePosition(newPos, currPos, distance-1, pen->angle);
+    calculatePosition(&newPos, &currPos, distance, pen->angle);
     
-    x1 = rounds(currPos[0]);
-    y1 = rounds(currPos[1]);
-    x2 = rounds(newPos[0]);
-    y2 = rounds(newPos[1]);
+    x1 = rounds(currPos.pos[0]);
+    y1 = rounds(currPos.pos[1]);
+    x2 = rounds(newPos.pos[0]);
+    y2 = rounds(newPos.pos[1]);
     line(x1, y1, x2, y2, &plotter, (void*)&(pen->pattern));
 
-    /*adjusting position after write*/
-    pen->position[0] = newPos[0];
-    pen->position[1] = newPos[1];
+    /*adjusting position after write. 
+     (Could be fixed by changing for loop at line:59 in line() instead)*/
+    pen->position = newPos;
     currPos = pen->position;
+    calculatePosition(&newPos, &currPos, 1, pen->angle);
+    pen->position = newPos;
 
-    calculatePosition(newPos, currPos, 1, pen->angle);
-
-    pen->position[0] = newPos[0];
-    pen->position[1] = newPos[1];
-
-    formatLog(logEntry, DRAW, currPos, newPos);
-    /*NOTE: Consider adding each log to an array instead of opening and
-        closing the file*/
+    formatLog(logEntry, DRAW, &currPos, &newPos);
     tlog(logEntry);
 
+    /*TurtleGraphicsDebug*/
     #ifdef DEBUG
     penDown();
     printf("%s\n",logEntry);
@@ -246,8 +242,8 @@ int draw(Pen *pen, GCommand *command)
 * FUNCTION: colourFG
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line() function.
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
 *   '0' ~ success.
@@ -260,6 +256,7 @@ int draw(Pen *pen, GCommand *command)
 *****************************************************************************/
 int colourFG(Pen *pen, GCommand *command)
 {
+    /*SKIPS IN TurtleGraphicsSimple*/
     #ifndef SIMPLE
     pen->fg = *(int*)(command->data); 
     setFgColour(pen->fg);
@@ -272,8 +269,8 @@ int colourFG(Pen *pen, GCommand *command)
 * FUNCTION: colourBG
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line() function.
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
 *   '0' ~ success.
@@ -286,6 +283,7 @@ int colourFG(Pen *pen, GCommand *command)
 *****************************************************************************/
 int colourBG(Pen *pen, GCommand *command)
 {
+    /*SKIPS IN TurtleGraphicsSimple*/
     #ifndef SIMPLE
     pen->bg = *(int*)(command->data); 
     setBgColour(pen->bg);
@@ -298,11 +296,11 @@ int colourBG(Pen *pen, GCommand *command)
 * FUNCTION: changePattern
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'pen'       ~ Pen struct tracks data for line() function.
-*   'command'   ~ GCommand struct contains the command data.
+*   pen(Pen*)           ~ Pen struct tracks data for line() function.
+*   command(GCommand*)  ~ GCommand struct contains the command data.
 *
 * EXPORTS: 
-*   '0' ~ success.
+*   '0'     ~ success.
 *
 * PURPOSE: 
 *   Sets the pen field 'pattern' the command data
@@ -315,56 +313,10 @@ int changePattern(Pen *pen, GCommand *command)
 }
 
 /*****************************************************************************
-* FUNCTION: getAllocater
-*-----------------------------------------------------------------------------
-* IMPORTS: 
-* 	'type'          ~ String containing the type of ALLOCATER needed
-*   'allocaterPtr'  ~ Function pointer to ALLOCATER functions.
-*
-* EXPORTS:
-*   'success'   ~ An int representing an error code.
-*
-* PURPOSE: 
-*   Matches 'type' to either ROTATE, MOVE, DRAW, FG, BG or PATTERN and assigns
-*   the appropriate ALLOCATER function allocaterPtr.
-*
-* ERROR CODES: 
-*   0 ~ No errors.
-*   1 ~ Invalid type.
-*
-* NOTES: 
-*   --
-*****************************************************************************/
-int getAllocater(char *type, ALLOCATER allocaterPtr)
-{
-    int success = 0;
-
-    if((strstr(ROTATE, type)) || (strstr(MOVE, type))
-    || (strstr(DRAW, type)))
-    {
-        allocaterPtr = &allocateDouble;
-    }
-    else if ((strstr(FG, type)) || (strstr(BG, type)))
-    {
-        allocaterPtr = &allocateInt;
-    }
-    else if(strstr(PATTERN, type))
-    {
-        allocaterPtr = &allocateChar;
-    }
-    else /*ERROR - Imported type is invalid*/
-    {
-        success = 1;
-    }
-
-    return success;
-}
-
-/*****************************************************************************
 * FUNCTION: plotter
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'plotData'  ~ A void pointer to a char that will be printed.
+*   plotData(void*)  ~ A void pointer to a char that will be printed.
 *
 * EXPORTS: 
 *   none
@@ -374,7 +326,7 @@ int getAllocater(char *type, ALLOCATER allocaterPtr)
 *   function in effects.c).
 *
 * NOTES: 
-*  --
+*  plotData is void to allow any data to be passed through to a PLOTTER func.
 *****************************************************************************/
 void plotter(void *plotData)
 {
@@ -385,11 +337,11 @@ void plotter(void *plotData)
 * FUNCTION: allocateDouble
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-* 	'data'      ~ A String containing data for the GCommand Struct
-*   'gCommand'  ~ The GCommand struct
+* 	data(char*)         ~ A String containing data for the GCommand Struct.
+*   gCommand(GCommand*) ~ The GCommand struct.
 *
 * EXPORTS: 
-*   'success'   ~ Int representing the ERROR codes.
+*   success(int)    ~ Number representing the ERROR codes.
 *
 * PURPOSE: 
 *   Allocates enough space on the heap to hold the data for the 
@@ -400,7 +352,7 @@ void plotter(void *plotData)
 *   1 ~ Invalid data.
 *
 * NOTES: 
-*   --
+*   'data' should point to a string containing a single double value.
 *****************************************************************************/
 static int allocateDouble(char *data, GCommand *gCommand)
 {
@@ -418,11 +370,11 @@ static int allocateDouble(char *data, GCommand *gCommand)
 * FUNCTION: allocateInt
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-* 	'data'      ~ A String containing data for the GCommand Struct
-*   'gCommand'  ~ The GCommand struct
+* 	data(char*)         ~ A String containing data for the GCommand Struct
+*   gCommand(GCommand*) ~ The GCommand struct
 *
 * EXPORTS: 
-*   'success'   ~ Int representing the ERROR codes.
+*   success(int)   ~ Number representing the ERROR codes.
 *
 * PURPOSE: 
 *   Allocates enough space on the heap to hold the data for the 
@@ -433,7 +385,7 @@ static int allocateDouble(char *data, GCommand *gCommand)
 *   1 ~ Invalid data.
 *
 * NOTES: 
-*   --
+*   'data' should point to a String containing a single int value.
 *****************************************************************************/
 static int allocateInt(char *data, GCommand *gCommand)
 {
@@ -452,11 +404,11 @@ static int allocateInt(char *data, GCommand *gCommand)
 * FUNCTION: allocateChar
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-* 	'data'      ~ A String containing data for the GCommand Struct
-*   'gCommand'  ~ The GCommand struct
+* 	data(char*)         ~ A String containing data for the GCommand Struct
+*   gCommand(GCommand*) ~ The GCommand struct
 *
 * EXPORTS: 
-*   'success'   ~ Int representing the ERROR codes.
+*   success(int)    ~ Number representing the ERROR codes.
 *
 * PURPOSE: 
 *   Allocates enough space on the heap to hold the data for the 
@@ -467,7 +419,7 @@ static int allocateInt(char *data, GCommand *gCommand)
 *   1 ~ Invalid data.
 *
 * NOTES: 
-*   --
+*   'data' should point to a single char.
 *****************************************************************************/
 static int allocateChar(char *data, GCommand *gCommand)
 {
@@ -486,17 +438,20 @@ static int allocateChar(char *data, GCommand *gCommand)
 * FUNCTION: freeCommand
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-*   'gCommand'  ~ Graphics Command to be freed
+*   gCommand(void*) ~ Graphics Command to be freed
 *
 * EXPORTS: 
-*   'success'   ~ Int representing the error code.
+*   success(int)    ~ Number representing the error code.
 *
 * PURPOSE: 
 *   Frees heap memory from 'data' then frees the gCommand from the heap
 *
+* NOTES:
+*   The function takes in a void pointer so that is matches FREEVALUE data
+*   type used by the generic LinkedList struct.
 *****************************************************************************/
-void freeCommand(GCommand *gCommand)
+void freeCommand(void *gCommand)
 {
-    free(gCommand->data);
-    free(gCommand);
+    free(((GCommand*)gCommand)->data);
+    free(((GCommand*)gCommand));
 }

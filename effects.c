@@ -54,7 +54,8 @@ void line(int x1, int y1, int x2, int y2, PlotFunc plotter, void *plotData)
     }
     
     /* Bresenham's line algorithm */
-    decision = majorDelta / 2;    
+    decision = majorDelta / 2;   
+    /*MADE A SMALL CHANGE HERE, off by one error*/ 
     for(i = 0; i <= majorDelta; i++)
     {
         /* Move to row y + 1, column x + 1 and plot a point. */

@@ -15,8 +15,8 @@
 * FUNCTION: main
 *-----------------------------------------------------------------------------
 * IMPORTS: none
-*   'argc'  ~ The number of command line arguments as an int.
-*   'argv'  ~ The command line arguments in a string array.
+*   argc(int)       ~ The number of command line arguments as an int.
+*   argv(char**)    ~ The command line arguments in a string array.
 *
 * EXPORTS: 
 *   '0' ~ Function succeeded.
@@ -27,7 +27,7 @@
 * NOTES: 
 *   --
 *****************************************************************************/
-int main( int argc, char *argv[])
+int main( int argc, char **argv)
 {
     Pen *pen = NULL;
     LinkedList *commands = NULL;
@@ -41,7 +41,8 @@ int main( int argc, char *argv[])
     }
     if(createPen(&pen) && createList(&commands))
     {
-        if(readCommands(argv[1], commands))
+        commands->freeValuePtr = &freeCommand;
+        if(readCommands(argv[1], commands) == 0)
         {
             executeGCommandList(pen, commands);
             setColourDefault();
@@ -54,7 +55,7 @@ int main( int argc, char *argv[])
     }
     if(commands != NULL)
     {
-        lincolnList(commands);
+        completeFreeList(commands);
     }
 
     return 0;

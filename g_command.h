@@ -50,6 +50,6 @@ void plotter(void *plotData);
 
 int getAllocater(char *type, ALLOCATER allocaterPtr);
 
-void freeCommand(GCommand *gCommand);
+void freeCommand(void *gCommand);
 
 #endif

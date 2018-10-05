@@ -82,8 +82,8 @@ void convertToRadians( double *angle)
 * FUNCTION: calculatePosition
 *-----------------------------------------------------------------------------
 * IMPORTS: 
-* 'newPos'      ~double pointer the the new position of the cursor.
-* 'currPos'     ~double pointer to the current position of the cursor.
+* 'newPos'      ~Coord of the new position of the cursor.
+* 'currPos'     ~Coord of the current position of the cursor.
 * 'distance'    ~double containing the distance to move the cursor.
 * 'angle'       ~double containing the angle to move the cursor on.
 *
@@ -99,10 +99,10 @@ void convertToRadians( double *angle)
 * NOTES: 
 * --
 *****************************************************************************/
-void calculatePosition( double *newPos, double *currPos
+void calculatePosition( Coord *newPos, Coord *currPos 
                       , double distance, double angle)
 {
     convertToRadians(&angle);
-    newPos[0] = currPos[0] + distance * cos(angle);
-    newPos[1] = currPos[1] + distance * sin(angle);
+    newPos->pos[0] = currPos->pos[0] + distance * cos(angle);
+    newPos->pos[1] = currPos->pos[1] + distance * sin(angle);
 }

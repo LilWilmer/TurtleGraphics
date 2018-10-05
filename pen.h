@@ -5,7 +5,7 @@
 /*Tracks current state of the following information*/
 
 typedef struct{
-    double position[2]; /*Coordinates (x,y)*/
+    Coord position; /*Coordinates (x,y)*/
     int angle;      /*Angle from 0°-360°*/
     int fg;         /*Forground colour 0-15*/
     int bg;         /*Background colour 0-7*/
