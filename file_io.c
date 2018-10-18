@@ -1,10 +1,19 @@
 /******************************************************************************
 * AUTH: William Payne
 * FILE: file_io.c
-* LAST MOD: 05/10/2018
+* LAST MOD: 14/10/2018
 * PURPOSE: Handle functions pertaining too reading/writing to and from files.
 ******************************************************************************/
 #include "file_io.h"
+
+/*STATIC FORWARD DECLARATIONS*/
+/**
+* emptyBuffer():
+* --- --- --- ---
+* Calls appendStrings() to write logs to the LOG_FILE, resets the
+* log counter and cleans up all memory used.
+*/
+static int emptyBuffer(char ***logBuffer, int *logCount);
 
 /*****************************************************************************
 * FUNCTION: readCommands
@@ -14,30 +23,35 @@
 *   commands(LinkedList*)   ~ List for holding each GCommand from the file.
 *
 * EXPORTS: 
-*   success(int) ~ A number representing the success of the function.
+*   status(int) ~ A number representing the status of the function.
 *
 * PURPOSE: 
 *   Create GCommands structs using data read in from a file and store the 
 *   structs into the commands list.
 *
 * ERROR CODES: 
-*   0 ~ No errors occured.
-*   1 ~ File doesn't exist.
-*   2 ~ Read error occured.
-*   3 ~ File failed to close.
+*   SUCCESS         = 0 ~ No errors occured.
+*   OPEN_ERROR      = 1 ~ File doesn't exist.
+*   READ_ERROR      = 2 ~ Read error occured.
+*   CLOSE_ERROR     = 4 ~ File failed to close.
+*   INVALID_FORMAT  = 5 ~ File format is not valid.
+*   EMPTY_FILE      = 6 ~ File is empty.
 *
 *  NOTES:
-*   If error occurs it is up to the user of this function the free the list.
+*   If an error occurs it is up to the user of this function the free the list.
+*   i.e. the list will contain all the commands successfully read.
 *****************************************************************************/
-int readCommands(char* fileName, LinkedList *commands)
+int readCommands(char *fileName, LinkedList *commands)
 {
     /*DECLARTIONS--------------*/
-    int error = FALSE, success;
-    int ii = 0;
+    IO_Status status;
+    int error;
+    int ii;
 
     char BADOPEN[60];
     char BADREAD[60];
     char BADFORMAT[60];
+    char EMPTYFILE[60];
     char BADCLOSE[60];
     char preservedLine[COMMAND_LENGTH];
     char line[COMMAND_LENGTH];
@@ -52,9 +66,12 @@ int readCommands(char* fileName, LinkedList *commands)
     sprintf(BADOPEN,"Error opening file: %s\n",fileName);
     sprintf(BADREAD,"Error reading from file: %s\n",fileName);
     sprintf(BADFORMAT,"Invalid file format: %s\n",fileName);
+    sprintf(EMPTYFILE,"File is empty: %s\n",fileName);
     sprintf(BADCLOSE,"Error closing file: %s\n",fileName);
 
-    success = 0;
+    status = SUCCESS;
+    error = FALSE;
+    ii = 0;
 
     /*OPEN------------------------------------------------------------------*/
     f = fopen(fileName,READ);
@@ -63,12 +80,12 @@ int readCommands(char* fileName, LinkedList *commands)
     if(f == NULL)
     {
         perror(BADOPEN);
-        success = 1;
+        status = OPEN_ERROR;
     }
     else if(ferror(f))
     {
         perror(BADREAD);
-        success = 2;
+        status = READ_ERROR;
     }
     /*---------------------------------------*/
     else
@@ -96,6 +113,7 @@ int readCommands(char* fileName, LinkedList *commands)
                 {
                     if(createGCommand(type, data, &newGCommand) == 0)
                     {
+                        /*newGCommand enters the queue of commands*/
                         insertLast(commands, newGCommand);
                     }
                     else
@@ -109,15 +127,20 @@ int readCommands(char* fileName, LinkedList *commands)
                 }
             }
         }
-        if(ferror(f))
+        if(ferror(f))/*File reading error.*/
         {
             perror(BADREAD);
         }
-        if(error == TRUE)
+        if(error == TRUE)/*File format is invalid.*/
         {
-            printf("%s",BADFORMAT);
-            printf("\"%s\" HERE--->Line:%d\n", preservedLine, ii);
-            success = 2;
+            fprintf(stderr,"%s",BADFORMAT);
+            fprintf(stderr,"\"%s\" HERE--->Line:%d\n", preservedLine, ii);
+            status = INVALID_FORMAT;
+        }
+        else if(commands->count == 0)
+        {
+            fprintf(stderr,"%s",EMPTYFILE);
+            status = EMPTY_FILE;
         }
         newGCommand = NULL;
     }
@@ -126,10 +149,10 @@ int readCommands(char* fileName, LinkedList *commands)
     {
         /*CLOSE-------------------------------------------------------------*/
         perror(BADCLOSE);
-        success = 3;
+        status = CLOSE_ERROR;
     }
     /*--------------------------*/
-    return success;
+    return status;
 }
 
 /*****************************************************************************
@@ -155,10 +178,17 @@ int readCommands(char* fileName, LinkedList *commands)
 *   Using Coord structs lets the function validate that the array is of 
 *   size 2.
 *****************************************************************************/
-int formatLog(char *line, char* type, Coord *startPos, Coord *endPos)
+int formatLog(char *line, char *type, Coord *startPos, Coord *endPos)
 {
-    sprintf(line, LOG_FORMAT, type, startPos->pos[0], startPos->pos[1]
-           ,endPos->pos[0], endPos->pos[1]);
+    double x1, x2, y1, y2;
+
+    x1 = startPos->pos[0];
+    y1 = startPos->pos[1];
+    x2 = endPos->pos[0];
+    y2 = endPos->pos[1];
+
+    /*Keeping in 'negative 0' values*/
+    sprintf(line, LOG_FORMAT, type, x1, y1, x2, y2);
 
     return 0;
 }
@@ -178,7 +208,11 @@ int formatLog(char *line, char* type, Coord *startPos, Coord *endPos)
 * ERROR CODES: 
 *  --
 *
-* NOTES: To empty 
+* NOTES:
+*   To empty the buffer pass in NULL.
+*
+*   Log data can be compiled here from anywhere in the program without passing
+*   around a pointer to store the logs (or without opening file on every log)
 *****************************************************************************/
 int tlog( char *log)
 {
@@ -226,7 +260,7 @@ int tlog( char *log)
 }
 
 /*****************************************************************************
-* FUNCTION: emptyBuffer
+* STATIC FUNCTION: emptyBuffer
 *-----------------------------------------------------------------------------
 * IMPORTS: 
 *   logBuffer(char***)  ~ Pointer to a String array containing log strings.
@@ -245,16 +279,22 @@ int tlog( char *log)
 * NOTES: 
 *   --
 *****************************************************************************/
-int emptyBuffer(char ***logBuffer, int *logCount)
+static int emptyBuffer(char ***logBuffer, int *logCount)
 {
     int ii;
+
+    /* writing to the log file*/
     appendStrings(LOG_FILE, *logBuffer, *logCount);
+
+    /*Clearing buffer*/
     for(ii = 0; ii < *logCount; ii++)
     {
         free((*logBuffer)[ii]);
         (*logBuffer)[ii] = NULL;
     }
     free(*logBuffer);
+
+    /*Removing pointer to freed memory and resetting log count for next use*/
     *logBuffer = NULL;
     *logCount = 0;
 
@@ -270,16 +310,16 @@ int emptyBuffer(char ***logBuffer, int *logCount)
 *   stringCount(int)    ~ Number of strings in array.
 *
 * EXPORTS: 
-*   success(int)    ~ A Number representing an error code.
+*   status(int)    ~ A Number representing an error code.
 *
 * PURPOSE: 
 *   Append an array of strings at the end of the specified file.
 *
 * ERROR CODES: 
-*   0 = No errors.
-*   1 = File doesn't exist.
-*   2 = Write error.
-*   3 = Error closing file.
+*   SUCCESS     = 0 ~ No errors.
+*   OPEN_ERROR  = 1 ~ File doesn't exist.
+*   WRITE_ERROR = 3 ~ Write error.
+*   CLOSE_ERROR = 4 ~ Error closing file.
 *
 * NOTES: (METHOD APPENDS A PRE-EXISTING FILE)
 *   MAKE THIS MODULE GENERIC
@@ -291,33 +331,34 @@ int emptyBuffer(char ***logBuffer, int *logCount)
 int appendStrings(char *fileName, char **strings, int stringCount)
 {
     int ii;
-    int success;
+    IO_Status status;
 
     char BADOPEN[60];
     char BADWRITE[60];
     char BADCLOSE[60];
     FILE *f = NULL;
 
-    sprintf(BADOPEN,"Error opening file, %s",fileName);
-    sprintf(BADWRITE,"Error writing to file, %s",fileName);
-    sprintf(BADCLOSE,"Error closing file, %s",fileName);
+    /*Appending file name to the end of error messages*/
+    sprintf(BADOPEN,"Error opening file: %s",fileName);
+    sprintf(BADWRITE,"Error writing to file: %s",fileName);
+    sprintf(BADCLOSE,"Error closing file: %s",fileName);
     
     f = fopen(fileName,APPEND);
 
-    success = 0;
+    status = SUCCESS;
 
-    /*ERROR HANDLING-------------------------*/
+    /*Error opening file*/
     if(f == NULL)
     {
         perror(BADOPEN);
-        success = 1;
+        status = OPEN_ERROR;
     }
     else if(ferror(f))
     {
+        /*Write error occured*/
         perror(BADWRITE);
-        success = 2;
+        status = WRITE_ERROR;
     }
-    /*---------------------------------------*/
     else
     {
         ii = 0;
@@ -332,6 +373,7 @@ int appendStrings(char *fileName, char **strings, int stringCount)
         if(ferror(f))
         {
             perror(BADWRITE);
+            status = WRITE_ERROR;
         }
     }
 
@@ -342,14 +384,13 @@ int appendStrings(char *fileName, char **strings, int stringCount)
         {
             /*The file was not closed correctly, nothing can be done*/
             perror(BADCLOSE);
-            success = 3;
+            status = CLOSE_ERROR;
             /*It is the Lord who goes before you. He will be with you;
              he will not leave you or forsake you. Do not fear or be
              dismayed. - Deuteronomy 31:8”*/
         }
     }
     /*--------------------------*/
-    return success;
+    return status;
 }
-
 

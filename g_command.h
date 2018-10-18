@@ -66,53 +66,6 @@ typedef int (*AllocateFunc)(char *data, GCommand *gCommand);
 */
 int createGCommand(char *type, char *data, GCommand **newGCommand);
 
-/*==COMMAND FUNCTIONS==*/
-/**
-* rotate():
-* --- --- ---
-* Calculates the angle from the 'command' data and either adds or 
-* subtracts it from the current angle stored in 'pen'.
-*/
-int rotate( Pen *pen, GCommand *command);
-
-/**
-* move():
-* --- --- 
-* Moves the cursor place by passing the coordinate data from 
-* calculatePosition() to pen->positon.
-*/
-int move(Pen *pen, GCommand *command);
-
-/**
-* draw():
-* --- --- 
-* Calculates the start and end position for line() to draw the pattern stored
-* in 'pen' onto the terminal.
-*/
-int draw(Pen *pen, GCommand *command);
-
-/**
-* colourFG():
-* --- --- ---
-* Sets the pen FG field to the command data and calls setFgColour in effects.c
-*/
-int colourFG(Pen *pen, GCommand *command);
-
-/**
-* colourBG():
-* --- --- --- 
-* Sets the pen BG field to the command data and calls setBgColour in effects.c
-*/
-int colourBG(Pen *pen, GCommand *command);
-
-/**
-* changePattern():
-* --- --- --- ---
-* Sets the pen field 'pattern' the command data.
-*/
-int changePattern(Pen *pen, GCommand *command);
-/*==END OF COMMAND FUNCTIONS==*/
-
 /**
 * plotter():
 * --- --- ---

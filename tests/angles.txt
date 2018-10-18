@@ -1,0 +1,17 @@
+move 10
+rotate -45
+draw 10
+rotate -90
+draw 10
+rotate -90
+draw 10
+rotate -90
+draw 10
+rotate -45
+move 15
+rotate -60
+draw 10
+rotate -120
+draw 10
+rotate -120
+draw 10

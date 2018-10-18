@@ -17,13 +17,23 @@
 #define READ "r"
 #define WRITE "w"
 #define APPEND "a"
-#define LOG_FORMAT "%4s (%7.3f,%7.3f)-(%7.3f,%7.3f)\n"
+#define LOG_FORMAT "%4s (%8.3f,%8.3f)-(%8.3f,%8.3f)\n"
 #define LOG_FILE "graphics.log"
 #define LOG_ENTRY_LENGTH 100
 #define START_LOG "---\n"
 #define BUFFER_SIZE 100
 #define COMMAND_LENGTH 100
 #define TIME_ARRAY_LEN 4
+
+typedef enum IO_Status{
+    SUCCESS = 0,
+    OPEN_ERROR = 1,
+    READ_ERROR = 2,
+    WRITE_ERROR = 3,
+    CLOSE_ERROR = 4,
+    INVALID_FORMAT = 5,
+    EMPTY_FILE = 6
+}IO_Status;
 
 /*FORWARD DECLARTIONS-------------------------------------------------------*/
 /**
@@ -54,13 +64,7 @@ int formatLog(char *line, char* type, Coord *currPos, Coord *newPos);
 */
 int tlog(char *line);
 
-/**
-* emptyBuffer():
-* --- --- --- ---
-* Calls appendStrings() to write logs to the LOG_FILE, resets the
-* log counter and cleans up all memory used.
-*/
-int emptyBuffer(char ***logBuffer, int *logCount);
+
 
 /**
 * appendStrings():

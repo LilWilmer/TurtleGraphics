@@ -1,7 +1,7 @@
 /******************************************************************************
 * AUTH: William Payne
 * FILE: draw.c
-* LAST MOD: 05/10/18
+* LAST MOD: 14/10/18
 * PURPOSE: not much of a purpose besides abstracting the use of effects.c.
 *          Consider removing this c file all together.
 ******************************************************************************/
@@ -27,7 +27,7 @@
 *
 * NOTES: 
 *****************************************************************************/
-void executeGCommandList(Pen *pen, LinkedList *commands)
+void drawArt(Pen *pen, LinkedList *commands)
 {
     GCommand *command = NULL;
 
@@ -35,7 +35,18 @@ void executeGCommandList(Pen *pen, LinkedList *commands)
 
     /*START NEW LOG BUGGER*/
     tlog(START_LOG);
-    
+
+    /*Setting the scene*/
+
+    #ifdef SIMPLE
+    setBgColour(7);
+    setFgColour(0);
+    #else
+    setBgColour(pen->bg);
+    setFgColour(pen->fg);
+    #endif
+
+    /*Loops till art is drawn (commands run out)*/
     while(commands->count > 0)
     {
         command = removeFirst(commands);
@@ -46,7 +57,7 @@ void executeGCommandList(Pen *pen, LinkedList *commands)
         /*Freeing command*/
         freeCommand(command);
     }
-    /*CLEAR LOG BUGGER*/
+    /*CLEAR LOG BUFFER*/
     tlog(NULL);
 
     /*Place cursor back at bottom of the screen*/

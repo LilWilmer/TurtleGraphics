@@ -47,8 +47,8 @@ typedef enum BG{
 * ---   ---   ---   ---
 * Tag: --
 * Typedef: Pen
-* Purpose: Tracks information pertaining to GCommand functions and line() in
-*          effects.c.
+* Purpose: Tracks information pertaining to g_Command.c functions and line() 
+*          in effects.c.
 * FIELDS:
 *   position(Coord) ~ Coordinate of the cursor [x,y]
 *   angle(double)   ~ Angle from 0.0f°-360.0f°
@@ -59,6 +59,7 @@ typedef enum BG{
 */
 typedef struct{
     Coord position; /*Coordinates (x,y)*/
+    Coord realPos; /*Coordinates (x,y)*/
     double angle;      /*Angle from 0.0f°-360.0f°*/
     int fg;         /*Forground colour 0-7*/
     int bg;         /*Background colour 0-15*/

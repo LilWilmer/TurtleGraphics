@@ -19,7 +19,7 @@
 *   Creates a new Pen struct on the heap and initializes all its fields.
 *
 * ERROR CODES: 
-*   1 ~ No errors.
+*   0s ~ No errors.
 *
 * NOTES: 
 *   Pen must be freed before ending program
@@ -30,12 +30,14 @@ int createPen(Pen **pen)
 
     (*pen)->position.pos[0] = 0.0f;
     (*pen)->position.pos[1] = 0.0f;
+    (*pen)->realPos.pos[0] = 0.0f;
+    (*pen)->realPos.pos[1] = 0.0f;
     (*pen)->angle = 0.0f;
-    (*pen)->fg = 0;
-    (*pen)->bg = 1;
-    (*pen)->pattern = '#';
+    (*pen)->fg = 7;
+    (*pen)->bg = 0;
+    (*pen)->pattern = '+';
 
-    return 1;
+    return 0;
 }
 
 /*****************************************************************************

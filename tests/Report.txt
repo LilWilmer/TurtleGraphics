@@ -1,0 +1,520 @@
+1. FUNCTIONS: 35 paragraphs
+
+draw.c: 
+
+    -executeGCommand()
+
+    Description:
+
+    The draw.c function 'void executeGCommandList(Pen *pen, LinkedList *commands)'
+    itterates through a LinkedList executing each function pointer stored in the
+    GCommand struct resulting in an ascii picture being printed to the terminal.
+    After each GCommand struct has been executed it is freed (The list node is
+    removed apon calling removeLast()).
+
+    Declaration: <-Colour this shiet in word 
+
+    void *executeGCommandList(Pen *pen, LinkedList *commands)
+
+    Parameters:
+
+    > pen ~ This struct holds information pertaining to the GCommand fucntion
+            pointers and the effects.c line() function.
+
+    > commands ~ This is the LinkedList containing the GCommand structs.
+
+    Return Value:
+
+    >No returns.
+
+------------------------------------------------------------------------------------
+file_io.c:
+
+    -readCommands()
+
+    Description:
+
+    The file_io.c function 'int readCommands(char *fileName, LinkedList *commands)'
+    Creates GCommand structs using data read in from the specified file name. Each 
+    GCommand is insertedLast() into the imported LinkedList 'commands'.
+
+    Declaration:
+
+    int readCommands(char *fileName, LinkedList *commands)
+
+    Parameters:
+
+    > fileName ~ This is the String containing name of the file to be opened.
+
+    > commands ~ This is the LinkedList for storing the new GCommand structs.
+
+    Return Value:
+
+    This function returns an integer value that represents one of the following
+    error codes.
+
+    ERROR CODES:
+
+    0 ~ No errors occured.
+    1 ~ File doesn't exist.
+    2 ~ Read error occured.
+    3 ~ File failed to close.
+
+------------------------------------------------------------------------------------
+    -formatLog()
+
+    Description:
+
+    The file_io.c function 'int formatLog(char *line, char *type, Coord *startPos, Coord *endPos)'
+    formats two coordinates to the specifications of the constant 'LOG_FORMAT'.The 
+    formated String is stored in the imported char* 'line' e.g. 
+    "DRAW ( 14.000, 88.000) - ( 20.000, 20.000)".
+
+    Declaration:
+
+    int formatLog(char *line, char *type, Coord *startPos, COord *endPos)
+
+    Parameters:
+
+    > line ~ This is the String for storing the formatted log entry.
+
+    > type ~ This is the String containing the type of GCommand e.g
+             "DRAW" or "MOVE"(LOG_FORMAT specifies %4s.
+
+    > startPos ~ This is a pointer to a Coord that contains the start position.
+
+    > endPos ~ This is a pointer to a Coord that contains the end position.
+
+    Return Value:
+
+    0 ~ Temp value(could be replaced with an error code).
+-------------------------------------------------------------------------------
+
+    -tlog()
+
+    Description:
+
+    This file_io.c function 'int tlog(char *log)' compiles log entries into a
+    buffer and flushes it to a file specified by the constant string LOG_FILE.
+    The buffer is flushed when the logCount reaches the constant int BUFFER_SIZE
+    or when the imported string 'log' is NULL. The function contains a statically 
+    allocated pointer to a string array however the array itself is allocated on
+    the heap. To prevent memory leaks the tlog() function should be passed NULL
+    when the user is finished writing logs, this frees all malloc'd memory and
+    sets the static pointer to NULL.
+
+    Declaration:
+
+    int tlog(char *log)
+
+    Parameters:
+
+    > log ~ This is the String containig the log information to be printed.
+
+    Return Values:
+
+    0 ~ Temp return
+-------------------------------------------------------------------------------
+
+    -emptyBuffer()
+
+    Desciption:
+
+    This file_io.c function 'static int emptyBuffer(char ***logBuffer, int *logCount)
+    works in tandom with tLog() by handling the freeing of allocated memory, updating
+    the logCounter and passing the String array to the appendStrings() function.
+
+    Parameters:
+
+    > logBuffer ~ This is the pointer to the logBuffer to be printed and freed.
+
+    > logCount ~ This is the pointer to the logCount to be reset to 0.
+
+    Return Values:
+    0 ~ Temp return
+-------------------------------------------------------------------------------
+
+    -appendStrings
+
+    Description:
+
+    This file_io function 'int appendStrings(char *fileName, char **Strings, int stringCount)'
+    appends the imported strings to the end of the file specified by the import 
+    'fileName'.
+
+    Declaration:
+
+    int appendStrings(char *fileName, char **Strings, int stringCount)
+
+    Parameters:
+
+    > fileName ~ This is the String containing the name of the file to be appened
+                 to.
+
+    > strings ~ This array of strings to be appended to the end of the file.
+
+    > stringCount ~ This is the size of array 'strings'
+
+    Return Values:
+
+    This function returns an integer value that represents one of the following
+    error codes.
+
+    ERROR CODES:
+
+    0 = No errors.
+    1 = File doesn't exist.
+    2 = Write error.
+    3 = Error closing file.
+--------------------------------------------------------------------------------    
+
+g_command.c:
+
+    -createGCommand()
+
+    Description:
+
+    This g_command.c function 'int createGCommand(char *type, char *data, GCommand **newGCommand)'
+    Creates a new heap GCommand struct and allocates the heap memory needed for 
+    the specified 'type'. The GCommand struct is also assigned a function pointer
+    based on its 'type'.
+
+        Types:
+
+        ROTATE - Assigned the rotate() function and allocated a double.
+        MOVE - Assigned the move() function and allocated a double.
+        DRAW - Assigned the draw() function adn allocated a double.
+        FG - Assigned the colourForeground() function and allocated an int.
+        BG - Assigned the colourBackGround() function and allocated an int.
+        PATTERN - Assigned the changePattern() function and allocated a char.
+
+    Declaration:
+
+    int createGCommand(char *type, char *data, GCommand **newCommand)
+
+    Parameters:
+
+    > type ~ This is the String containing the type of GCommand to create.
+
+    > data ~ This is the String containing the data to be passed into the command.
+
+    > newGCommand ~ This is the pointer to the new GCommand struct.
+
+    Return Values:
+
+    1 ~ Temp value.
+----------------------------------------------------------------------------------
+
+    -rotate()
+
+    Desciption:
+
+    This g_command.c function 'int rotate(Pen *pen, GCommand *command) Calculates
+    an angle from the data provided by the command struct and either adds or 
+    subtracts it from the current angle stored in the imported Pen struct.
+
+    Declarations:
+
+    int rotate(Pen *pen, GCommand *command)
+
+    Parameters:
+
+    > pen ~ This is the pointer to the pen whos angle is being modified.
+
+    > command ~ This is the GCommand struct containg the angle value.
+
+    Return Values:
+
+    0 ~ Temp value.
+-----------------------------------------------------------------------------------
+
+    -move()
+
+    Description:
+
+    This g_command.c function 'int move(Pen *pen, GCommand *command) function 
+    updates the cursors postion by passing the coordinate data from 
+    calculatePosition() to pen->position. This function is used as a function 
+    pointer in GCommand structs. Each call to this function creates a new log entry
+    that is passed to tlog().
+
+    Declarations:
+
+    int move(Pen *pen, GCommand *command)
+
+    Parameters:
+
+    > pen ~ This is the pointer to the pen whos position is being modified.
+
+    > command ~ This is the GCommand struct containg the distance value.
+
+    Return Values:
+
+    0 ~ Temp value.
+-------------------------------------------------------------------------------
+
+    -draw()
+
+    Description:
+
+    This g_command.c function 'int draw(Pen *pen, GCommand *command)' function
+    Calculates the start and end position for the effects.c line() function
+    to plot the pattern stored in the pen struct in a line accross the terminal.
+    The new position is calculated by calculatePosition() function. Each call
+    to this function creates a new log entry that is passed to tlog().
+
+    Declaration:
+
+    int draw(Pen *pen, GCommand *command);
+
+    Parameters:
+
+    > pen ~ This is the pointer to the pen whos position is being modified.
+
+    > command ~ This is the GCommand struct containg the distance value.
+
+    Return Values:
+
+    0 ~ Temp value.
+------------------------------------------------------------------------------
+
+    -colourFg() and -colourBg
+
+    Description:
+
+    The g_command functions 'int colourForeground/colourBackground(Pen *pen,
+    GCommand *command)' Set the terminal colour foreground/background colour
+    to the colour code stored in the GCommand struct. The colour code is also
+    stored in the Pen struct (although not used) just to keep track of current
+    state of everthing pertaining to GCommand and line(). These function are 
+    used as function pointers in the GCommand structs. The terminal colour is
+    changed by calling either setBackgroundColour() or setForegroundColour()
+    in effects.c
+
+    Declaration:
+
+    int colourForeground(Pen *pen, GCommand *command);
+    int colourBackground(Pen *pen, GCommand *command);
+
+    Parameters:
+
+    > pen ~ This is the pointer to the pen whos colour code is being modified.
+
+    > command ~ This is the GCommand struct containg the new colour escape code.
+
+   Return Values:
+
+    0 ~ Temp value. 
+-------------------------------------------------------------------------------
+
+    -changePattern()
+
+    Description:
+
+    The g_command functions 'int changePattern(Pen *pen, GCommand *command)'
+    sets the pen field 'pattern' to the char stored in the GCommand struct.
+
+    Declaration:
+
+    int changePattern(Pen *pen, GCommand *command);
+
+    Parameters:
+
+    > pen ~ This is the pointer to the pen whos pattern is being modified.
+
+    > command ~ This is the GCommand struct containg the new pattern.
+
+    Return Values:
+
+    0 ~ Temp value.
+------------------------------------------------------------------------------- 
+
+    -plotter()
+
+    Description:
+
+    The g_command.c function 'void plotter(void *plotData)' Prints a single
+    character to the terminal and is used as a call back function the effects.c
+    line() function. The imported void* allows any data to be passed through
+    to the PlotFunc.
+
+    Declaration:
+
+    void plotter(void *plotData)
+
+    Parameters:
+
+    > plotData ~ This is the pointer to the character that will be printed.
+
+    Return Values:
+
+    0 ~ Temp value.
+-------------------------------------------------------------------------------
+
+    -allocateDouble()
+
+    Description:
+
+    The g_commands.c function 'static int allocateDouble(char *data, GCommand *gCommand)
+    Allocates enough space on the heap for a single double value and points the
+    structs 'data' field at the memory. The function then parses the information
+    in the string 'data' into that allocated memory. This is used as a call back
+    function when creating a GCommand struct.
+
+    Declaration:
+
+    static int allocateDouble(char *data, GCommand *gCommand)
+
+    Parameters:
+
+    > data ~ This is the String that contains the data for the GCommand.
+
+    > gCommand ~ This is the pointer to the new GCommand.
+
+    Return Values:
+
+    > success ~ This is an error code indicating the success of the function
+
+    ERROR CODES:
+
+    0 ~ No errors.
+    1 ~ Invalid data.
+-------------------------------------------------------------------------------
+
+    -allocateInt()
+
+    Description:
+
+    The g_commands.c function 'static int allocateInt(char *data, GCommand *gCommand)
+    Allocates enough space on the heap for a single integer value and points the
+    structs 'data' field at that memory. The function then parses the information
+    in the string 'data' to that allocated memory. This is used as a call back
+    function when creating a GCommand struct.
+
+    Declaration:
+
+    static int allocateInt(char *data, GCommand *gCommand)
+
+    Parameters:
+
+    > data ~ This is the String that contains the data for the GCommand.
+
+    > gCommand ~ This is the pointer to the new GCommand.
+
+    Return Values:
+
+    > success ~ This is an error code indicating the success of the function
+
+    ERROR CODES:
+
+    0 ~ No errors.
+    1 ~ Invalid data.
+------------------------------------------------------------------------------
+
+    -allocateChar()
+
+    Description:
+
+    The g_commands.c function 'static int allocateChar(char *data, GCommand *gCommand)
+    Allocates enough space on the heap for a single character value and points the
+    structs 'data' field at that memory. The function then parses the information
+    in the string 'data' to that allocated memory. This is used as a call back
+    function when creating a GCommand struct.
+
+    Declaration:
+
+    static int allocateChar(char *data, GCommand *gCommand)
+
+    Parameters:
+
+    > data ~ This is the String that contains the data for the GCommand.
+
+    > gCommand ~ This is the pointer to the new GCommand.
+
+    Return Values:
+
+    > success ~ This is an error code indicating the success of the function
+
+    ERROR CODES:
+
+    0 ~ No errors.
+    1 ~ Invalid data.
+------------------------------------------------------------------------------
+
+    -freeCommand()
+
+    Description:
+
+    The g_commad.c function 'void freeCOmmand(void *gCommand) Frees heap memory
+    from the 'data' field within the struct then frees the GCommand struct.
+    Note this function imports a void* instead of a GCommand* to make it compatible
+    with the FreeFunc function pointer used by the generic linked list struct.
+
+    Declaration:
+
+    void freeCommand(void *gCommand)
+
+    Parameters:
+
+    > gCommand ~ This is a pointer to the GCommand struct to be freed.
+
+    Return Values:
+
+    none
+-------------------------------------------------------------------------------
+
+linked_list.c:
+    -createList
+    -insertFirst
+    -insertLast
+    -removeFirst
+    -removeLast
+    -get
+    -freeList
+    -freeListRec
+    -completeFreeList
+    -completeFreeRec
+
+main.c:
+    -main
+
+pen.c:
+    -createPen
+    -freePen
+
+utils.c:
+    -capitalize
+    -round
+    -convertToRadians
+    -calculatePosition
+
+2. COORDINATES:
+    How did you convert the input file to a coordinate system:
+        Implementation:
+        Alternate approach:
+
+3. SAMPLE INPUT
+
+    Command-line to execute program:
+
+        -TurtleGraphics
+            -Normal
+            -Valgrind
+            
+        -TurtleGraphicsSimple
+            -Normal
+            -Valgrind
+            
+        -TurtleGraphicsDebug
+            -Normal
+            -Valgrind
+
+    User input provided: ??????
+
+    The input file:
+        -charizard
+        -all my test files
+
+    The output:
+        -Terminal
+        -graphics.log

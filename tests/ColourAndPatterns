@@ -1,0 +1,97 @@
+rotate -90
+move 1
+rotate 90
+pattern @
+draw 20
+rotate -90
+draw 20
+rotate -90
+draw 20
+rotate -90
+draw 20
+rotate -90
+
+move 2
+rotate -90
+move 2
+rotate 90
+
+pattern *
+draw 16
+rotate -90
+draw 16
+rotate -90
+draw 16
+rotate -90
+draw 16
+rotate -90
+
+move 2
+rotate -90
+move 2
+rotate 90
+
+pattern $
+BG 0
+FG 3
+draw 12
+rotate -90
+draw 12
+rotate -90
+draw 12
+rotate -90
+draw 12
+rotate -90
+
+move 2
+rotate -90
+move 2
+rotate 90
+
+BG 7
+FG 1
+pattern +
+draw 8
+rotate -90
+draw 8
+rotate -90
+draw 8
+rotate -90
+draw 8
+rotate -90
+
+move 2
+rotate -90
+move 2
+rotate 90
+
+BG 6
+pattern O
+draw 4
+rotate -90
+draw 4
+rotate -90
+draw 4
+rotate -90
+draw 4
+rotate -90
+
+BG 1
+FG 6
+move 2
+rotate -90
+move 2
+rotate 90
+
+fg 2
+bg 0
+pattern x
+draw 1
+
+move 10
+rotate 90
+move 10
+rotate -135
+draw 14
+rotate -90
+draw 15

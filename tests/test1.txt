@@ -1,0 +1,35 @@
+bg 6
+fg 6
+pattern ~
+
+draw 5
+rotate -90
+draw 1
+rotate 270
+draw 5
+rotate 90
+draw 1
+rotate -270
+draw 5
+rotate -90
+draw 1
+
+rotate 180
+move 3
+rotate -90
+move 1
+
+bg 2
+fg 2
+draw 5
+rotate -90
+draw 1
+rotate 270
+draw 5
+rotate 90
+draw 1
+rotate -270
+draw 5
+rotate -90
+draw 1
+

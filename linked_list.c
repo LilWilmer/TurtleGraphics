@@ -2,9 +2,26 @@
 * AUTH: William Payne
 * FILE: linkedlist.c
 * LAST MOD: 24/9/18
-* PURPOSE: Linked list abstract data type.
+* PURPOSE: Doubley-linked, double ended, generic linked list ADT & DS.
 *****************************************************************************/
 #include "linked_list.h"
+
+/*STATIC FORWARD DECLARATIONS-----------------------------------------------*/
+/**
+* freeListRec:
+* --- --- --- ---
+* Recursively go through list till the end is reached, freeing each node
+* as the recursion unwinds.
+*/
+static void freeListRec(ListNode *currNode);
+
+/**
+* completeFreeRec:
+* --- --- --- ---
+* Recursively go through list till the end is reached, freeing each node
+* as the recursion unwinds.
+*/
+static void completeFreeRec(ListNode *currNode, FreeFunc freeFunc);
 
 /*****************************************************************************
 * FUNCTION: createList
@@ -13,7 +30,7 @@
 *   list(LinkedList**) ~ Pointer to the new List pointer
 *
 * EXPORTS:
-*   '1' ~ Temp error code(1 meaning success)
+*   '1' ~ Temp error code(1 meaning status)
 *
 * PURPOSE: 
 *   Creates, allocates and assigns an empty LinkedList to 'list'.
@@ -29,7 +46,7 @@ int createList(LinkedList **list)
     (*list)->tail = NULL;
     (*list)->freeFunc = NULL;
 
-    return 1;
+    return 0;
 }
 
 /*****************************************************************************
@@ -40,11 +57,11 @@ int createList(LinkedList **list)
 *    value(void*)       ~ Pointer to the data being inserted.
 *
 * EXPORTS: 
-*   '0'  ~ An int representing the success of the function.
+*   '0'  ~ An int representing the status of the function.
 *
 * PURPOSE: 
-*   Place an GCommand struct in a new ListNode then insert it into the front
-*   of the imported list.
+*   Assigns the imported void* to a new ListNode that is then inserted at the 
+*   front of the imported list.
 *
 * ERROR CODES: 
 *   0 ~ Success.
@@ -83,7 +100,7 @@ int insertFirst(LinkedList *list, void *value)
 *    value(void*)       ~ Pointer to the data being inserted.
 *
 * EXPORTS: 
-*   '0'  ~ An int representing the success of the function.
+*   '0'  ~ An int representing the status of the function.
 *
 * PURPOSE: 
 *   Assign a void pointer to a new ListNode then inserts it at the end
@@ -237,30 +254,32 @@ void *get(LinkedList *list, int index)
 *   list(LinkedList*)   ~ Pointer to LinkedList for freeing.
 *
 * EXPORTS: 
-*   success(int)    ~ Number representing the success of the function.
+*   status(int)    ~ Number representing the status of the function.
 *
 * PURPOSE: 
 *   Wrapper for freeListRec.
 *
 * ERROR CODES: 
 *   0 ~ List freed
-*   1 ~ List not freed
+*   1 ~ List pointer is NULL
 *
 * NOTES: 
 *   WRAPPER METHOD.
 *****************************************************************************/
 int freeList(LinkedList *list)
 {
-    int success = 1;
+    /*Returns 1 if list pointer is NULL(nothing can be freed)*/
+    int status = 1;
 
     if(list != NULL)
     {
         freeListRec(list->head);
         free(list);
+        status = 0;
     }
-    success = 0;
+ 
 
-    return success;
+    return status;
 }
 
 /*****************************************************************************
@@ -270,25 +289,26 @@ int freeList(LinkedList *list)
 *   list(ListNode*) ~ A pointer to a List node to be freed.
 *
 * EXPORTS: 
-*   '0' ~ An int representing the success of the free
+*   '0' ~ An int representing the status of the free
 *
 * PURPOSE: 
 *   Recursively go through list till the end is reached freeing each node
 *   as the recursion unwinds.
 *
 * ERROR CODES: 
-*   0 ~ No errors.
+*   0 = No errors.
 *
 * NOTES: 
 *   DOES NOT FREE THE *value* FIELD
 *****************************************************************************/
-void freeListRec(ListNode *currNode)
+static void freeListRec(ListNode *currNode)
 {
     if(currNode != NULL)
     {
         freeListRec(currNode->next);
+        free(currNode);
     }
-    free(currNode);
+
 }
 
 /*****************************************************************************
@@ -298,30 +318,31 @@ void freeListRec(ListNode *currNode)
 *   list(LinkedList*)   ~ Pointer to the LinkedList struct for freeing.
 *
 * EXPORTS: 
-*   success(int)    ~ Number representing the success of the function.
+*   status(int)    ~ Number representing the status of the function.
 *
 * PURPOSE: 
 *   Wrapper for completeFreeRec.
 *
 * ERROR CODES: 
 *   0 ~ List freed
-*   1 ~ List not freed
+*   1 ~ List pointer NULL
 *
 * NOTES: 
 *   WRAPPER METHOD.
 *****************************************************************************/
 int completeFreeList(LinkedList *list)
 {
-    int success = 1;
+    int status = 1;
 
     if(list != NULL)
     {
         completeFreeRec(list->head, list->freeFunc);
         free(list);
+        status = 0;
     }
-    success = 0;
 
-    return success;
+
+    return status;
 }
 
 /*****************************************************************************
@@ -343,7 +364,7 @@ int completeFreeList(LinkedList *list)
 * NOTES: 
 *   Tested with 300,000 levels of recursion with no overflow.
 *****************************************************************************/
-void completeFreeRec(ListNode *currNode, FreeFunc freeFunc)
+static void completeFreeRec(ListNode *currNode, FreeFunc freeFunc)
 {
     if(currNode != NULL)
     {

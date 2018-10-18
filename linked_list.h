@@ -108,13 +108,7 @@ void *get(LinkedList *list, int index);
 */
 int freeList(LinkedList *list);
 
-/**
-* freeListRec:
-* --- --- --- ---
-* Recursively go through list till the end is reached, freeing each node
-* as the recursion unwinds.
-*/
-void freeListRec(ListNode *currNode);
+
 
 /**
 * completeFreeList:
@@ -123,12 +117,6 @@ void freeListRec(ListNode *currNode);
 */
 int completeFreeList(LinkedList *list);
 
-/**
-* completeFreeRec:
-* --- --- --- ---
-* Recursively go through list till the end is reached, freeing each node
-* as the recursion unwinds.
-*/
-void completeFreeRec(ListNode *currNode, FreeFunc freeFunc);
+
 
 #endif

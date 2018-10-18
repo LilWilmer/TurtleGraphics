@@ -32,8 +32,4 @@ void setFgColour(int code);
  */
 void setBgColour(int code);
 
-/**
- * Resets terminal colours to default.
- */
-void setColourDefault(void);
 #endif

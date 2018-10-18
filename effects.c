@@ -112,8 +112,3 @@ void setBgColour(int code)
     printf("\033[%dm", (code % 8) + 40);
 }
 
-
-void setColourDefault(void)
-{
-    printf("\033[0m");
-}
