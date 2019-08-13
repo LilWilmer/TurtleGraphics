@@ -1,7 +1,7 @@
 ##############################################################################
 # MAKEFILE: TurtleGraphics
 # AUTH: William Payne
-# LAST MOD: 18/09/18
+# LAST MOD: 20/09/18
 ##############################################################################
 
 #CONSTANTS:
@@ -73,4 +73,4 @@ valError :
 	valgrind -v ./$(EXEC) testdata
 
 clean :
-	rm -f $(EXEC) $(ALLOBJ) *.o
+	rm -f $(ALL_EXEC) $(ALLOBJ) *.o

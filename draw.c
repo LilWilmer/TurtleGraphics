@@ -29,9 +29,10 @@
 *****************************************************************************/
 void drawArt(Pen *pen, LinkedList *commands)
 {
+    int ii;
+    int count = commands->count;
     GCommand *command = NULL;
 
-    CLEAR_SCREEN;
 
     /*START NEW LOG BUGGER*/
     tlog(START_LOG);
@@ -46,9 +47,16 @@ void drawArt(Pen *pen, LinkedList *commands)
     setFgColour(pen->fg);
     #endif
 
+    /*If the screen is cleared after setting the background colour it
+     sets the enitre background to that colour - looks a bit nicer for the
+     Turtle graphics simple.*/
+     
+    CLEAR_SCREEN;
+
     /*Loops till art is drawn (commands run out)*/
-    while(commands->count > 0)
+    for(ii = 0; ii < count; ii++)
     {
+        /*Retrieve the next command from list*/
         command = removeFirst(commands);
 
         /*Running command*/

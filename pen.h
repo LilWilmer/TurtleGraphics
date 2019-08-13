@@ -11,6 +11,9 @@
 /*INCLUDE STATEMENTS--------------------------------------------------------*/
 #include "common.h"
 
+/*Attempted to validate the imported colours with enums but it didnt seeme to
+ work - leaving the declaration of the enums here just incase i can get it
+ working*/
 /*typedef enum FG{
     black = 0,
     red = 1,
@@ -66,9 +69,19 @@ typedef struct{
     char pattern;   /*Pattern to be drawn*/
 }Pen;
 
-
+/**
+* createPen():
+* --- --- --- ---
+* Mallocs and initializes a Pen struct field assigning its memeory address to
+* the pen pointer pointer.
+*/
 int createPen(Pen **pen);
 
+/**
+* freePen():
+* --- --- --- ---
+* Frees all memory associated with the Pen struct.
+*/
 void freePen(Pen *pen);
 
 #endif

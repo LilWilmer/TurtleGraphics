@@ -65,21 +65,24 @@ static int changePattern(Pen *pen, GCommand *command);
 /**
 * allocateDouble():
 * --- --- --- ---
-* <text>
+* Allocates enough memory to hold a double to the GCommand and assigns the
+* value at data to that memory.
 */
 static int allocateDouble(char *data, GCommand *gCommand);
 
 /**
 * allocateInt():
 * --- --- --- ---
-* <text>
+* Allocates enough memory to hold an int to the GCommand and assigns the value
+* at data to that memory.
 */
 static int allocateInt(char *data, GCommand *gCommand);
 
 /**
 * allocateChar():
 * --- --- --- ---
-* <text>
+* Allocates enough memory to hold a double and assigns the value
+* at data to that memory.
 */
 static int allocateChar(char *data, GCommand *gCommand);
 
@@ -113,12 +116,15 @@ int createGCommand(char *type, char *data, GCommand **newGCommand)
     CommandFunc commandFuncPtr = NULL;
     AllocateFunc allocaterPtr = NULL;
 
-    /*Formatting type string to match predefined types constants*/
+    /*Formatting type to uppercase to match predefined type constants*/
     capitalize(type);
 
     /*Find and validate GCommand type*/
     if(strcmp(type, ROTATE) == 0)
     {
+        /*Giving each command a function pointer to its command function
+         prevents the need of using another if/switch statement to call the
+         function*/
         commandFuncPtr = &rotate;
         allocaterPtr = &allocateDouble;
     }
@@ -226,28 +232,29 @@ static int rotate( Pen *pen, GCommand *command)
 *****************************************************************************/
 static int move(Pen *pen, GCommand *command)
 {
-    int distance;
+    double distance;
     Coord currPos = pen->position;
     Coord newPos = NEW_COORD;
-
     char logEntry[LOG_ENTRY_LENGTH];
+
     distance = *(double*)(command->data);
 
 
+    /*Finding new cursor position.*/
     calculatePosition(&newPos, &pen->realPos, distance, pen->angle);
+
+    /*assigning the new cursor position to the pen struct*/
+    pen->realPos = newPos;
+    pen->position.pos[0] = rounds(newPos.pos[0]);
+    pen->position.pos[1] = rounds(newPos.pos[1]);
+
+    /*If the the coordinates current position is to far out of line with its
+     real position reset it.*/
+    realign(&pen->realPos, &pen->position);
 
     /*LOGGING---------------------------------------------------------------*/
     formatLog(logEntry, DRAW, &currPos, &newPos);
     tlog(logEntry);
-
-
-    pen->realPos = newPos;
-    pen->position.pos[0] = rounds(newPos.pos[0]);
-    pen->position.pos[1] = rounds(newPos.pos[1]);
-    /*NEW VALIDATOR-------------------------------------------------------------------------------------------*/
-
-    realign(&pen->realPos, &pen->position);
-
 
     /*TurtleGraphicsDebug*/
     #ifdef DEBUG
@@ -280,7 +287,8 @@ static int move(Pen *pen, GCommand *command)
 *****************************************************************************/
 static int draw(Pen *pen, GCommand *command)
 {
-    int distance, x1, y1, x2, y2;
+    int x1, y1, x2, y2;
+    double distance;
     Coord currPos = pen->position;
     Coord realPos = pen->realPos;
     Coord newPos = NEW_COORD;
@@ -289,14 +297,18 @@ static int draw(Pen *pen, GCommand *command)
     char logEntry[LOG_ENTRY_LENGTH];
     distance = *(double*)(command->data);
 
-
+    /*Calculating the end point of line to be drawn*/
+    /*The distance is reduced by one to remove a pattern plot at the final 
+      position of the cursor - this has to be corrected after the plot*/
     calculatePosition(&newPos, &currPos, distance-1, pen->angle);
 
+    /*Getting rounded coordinates for the line function*/
     x1 = rounds(currPos.pos[0]);
     y1 = rounds(currPos.pos[1]);
     x2 = rounds(newPos.pos[0]);
     y2 = rounds(newPos.pos[1]);
 
+    /*Plotting the a line to the terminal*/
     line(x1, y1, x2, y2, &plotter, (void*)&(pen->pattern));
 
     /*Moving and correcting cursors location after plot*/
@@ -304,6 +316,9 @@ static int draw(Pen *pen, GCommand *command)
     pen->position.pos[0] = rounds(newPos.pos[0]);
     pen->position.pos[1] = rounds(newPos.pos[1]);
     pen->realPos = newPos;
+
+    /*if the cursor has moved to far away from its real position it is
+      realigned*/
     realign(&pen->realPos, &pen->position);
 
     /*LOGGING---------------------------------------------------------------*/
@@ -433,7 +448,9 @@ void plotter(void *plotData)
 *   1 = Invalid data.
 *
 * NOTES: 
-*   'data' should point to a string containing a single double value.
+*   - 'data' should point to a string containing a single double value.
+*   - I've chosen not to validate for very large numbers. I dont see it being
+*     a big problem from the tests ive run.
 *****************************************************************************/
 static int allocateDouble(char *data, GCommand *gCommand)
 {
@@ -467,7 +484,9 @@ static int allocateDouble(char *data, GCommand *gCommand)
 *   1 = Invalid data.
 *
 * NOTES: 
-*   'data' should point to a String containing a single int value.
+*   - 'data' should point to a String containing a single int value.
+*   - I've chosen not to validate for very large numbers. I dont see it being a
+*     a big problem from the tests ive run.
 *****************************************************************************/
 static int allocateInt(char *data, GCommand *gCommand)
 {
@@ -502,7 +521,7 @@ static int allocateInt(char *data, GCommand *gCommand)
 *   1 = Invalid data.
 *
 * NOTES: 
-*   'data' should point to a single char.
+*   - 'data' should point to a single char.
 *****************************************************************************/
 static int allocateChar(char *data, GCommand *gCommand)
 {

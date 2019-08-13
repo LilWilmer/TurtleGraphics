@@ -48,6 +48,9 @@ int readCommands(char *fileName, LinkedList *commands)
     int error;
     int ii;
 
+    /*I needed these to be string i could modify to allow the file name to be
+     be added. - a normal printf() could use %s %s but the perror method only
+     takes a single string*/
     char BADOPEN[60];
     char BADREAD[60];
     char BADFORMAT[60];
@@ -58,7 +61,6 @@ int readCommands(char *fileName, LinkedList *commands)
     char delim[] = " ";
     char *type = NULL, *data = NULL;
 
-    /*INITALIZATIONS----------*/
     GCommand *newGCommand = NULL;
     FILE* f = NULL;
 
@@ -101,8 +103,8 @@ int readCommands(char *fileName, LinkedList *commands)
             /*Preserves line for an error report if necessary*/
             strcpy(preservedLine, line);
 
-            /*Gracefully skipping lines with a only a new line character*/
-            if( strlen(line) > 1)
+            /*Skipping lines with a only a new line character*/
+            if(line[0] != '\n')
             {
                 newGCommand = NULL;
                 type = strtok(line,delim);
@@ -187,7 +189,7 @@ int formatLog(char *line, char *type, Coord *startPos, Coord *endPos)
     x2 = endPos->pos[0];
     y2 = endPos->pos[1];
 
-    /*Keeping in 'negative 0' values*/
+    /*Keeping in 'negative 0' I dont know how to get rid of them*/
     sprintf(line, LOG_FORMAT, type, x1, y1, x2, y2);
 
     return 0;
@@ -361,6 +363,7 @@ int appendStrings(char *fileName, char **strings, int stringCount)
     }
     else
     {
+        /*Looping through the buffer printing adding each line to the file*/
         ii = 0;
         while(ii < stringCount && !ferror(f))
         {
@@ -385,9 +388,6 @@ int appendStrings(char *fileName, char **strings, int stringCount)
             /*The file was not closed correctly, nothing can be done*/
             perror(BADCLOSE);
             status = CLOSE_ERROR;
-            /*It is the Lord who goes before you. He will be with you;
-             he will not leave you or forsake you. Do not fear or be
-             dismayed. - Deuteronomy 31:8”*/
         }
     }
     /*--------------------------*/

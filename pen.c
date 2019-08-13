@@ -13,13 +13,13 @@
 *   pen(Pen**)  ~ Pointer to the new pen pointer
 *
 * EXPORTS: 
-*   '1' ~ Place holder for error code ('1' meaning success).
+*   '0' ~ Place holder for error code (0 meaning success).
 *
 * PURPOSE: 
 *   Creates a new Pen struct on the heap and initializes all its fields.
 *
 * ERROR CODES: 
-*   0s ~ No errors.
+*   0 ~ No errors.
 *
 * NOTES: 
 *   Pen must be freed before ending program
